@@ -1,10 +1,9 @@
-import time
+import ipaddress
 from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
-import ipaddress
 
 # create_csr.py
 ## Author: static0verdrive
@@ -13,7 +12,8 @@ import ipaddress
 # Cert Details
 OID                      = x509.oid.ExtendedKeyUsageOID.SERVER_AUTH # Server Authentication
 #OID                      = x509.oid.ExtendedKeyUsageOID.CLIENT_AUTH # Client Authentication
-PASSPHRASE               = "private"
+#CHALLENGE                = "Enrollment_challenge"
+PASSPHRASE               = "private_key_passphrase"
 HOSTNAME                 = "myhost"      # Hostname without domain
 DOMAIN                   = "example.com" # Domain name without leading period (.)
 COMMON_NAME              = "{}.{}".format(HOSTNAME, DOMAIN) # FQDN
@@ -50,6 +50,9 @@ csr_builder = csr_builder.subject_name(x509.Name([
 
 csr_builder = csr_builder.add_extension(x509.SubjectAlternativeName(SUBJECT_ALT_NAMES), critical=False)
 csr_builder = csr_builder.add_extension(x509.ExtendedKeyUsage([OID]), critical=False)
+
+#if CHALLENGE is not None:
+#    csr_builder = csr_builder.add_attribute(AttributeOID.CHALLENGE_PASSWORD, CHALLENGE.encode('utf-8'))
 
 # Sign the CSR with the private key.
 cert_signing_request = csr_builder.sign(private_key, hashes.SHA256(), default_backend())
